@@ -96,6 +96,10 @@ jobs:
     - uses: actions/download-artifact@v4
       with:
         name: "NXMC_CameraResolutionCustomizer_zip"
+    - uses: actions/attest-build-provenance@v2
+      id: attest
+      with:
+        subject-path: "NXMC_CameraResolutionCustomizer_${{ needs.determine_version.outputs.full_version }}.zip"
     - name: Create Draft Release
       env:
         GH_TOKEN: ${{ github.token }}
@@ -104,5 +108,5 @@ jobs:
         gh release create "$VERSION" \
           --draft \
           --title "$VERSION" \
-          --notes "Draft release created by workflow_dispatch" \
+          --notes "Draft release created by workflow_dispatch\n\n<small>🤓 Attestation: ${{ steps.attest.outputs.attestation-url }}</small>" \
           NXMC_CameraResolutionCustomizer_${{ needs.determine_version.outputs.full_version }}.zip
