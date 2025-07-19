@@ -50,6 +50,7 @@ jobs:
         mv BepInEx-NET.Framework-net48-win-x64-*.zip BepInEx.zip
         unzip -o BepInEx.zip -d dist
         chmod -R 755 dist
+        cp -r overlay/* dist/
         cp NXMC_CameraResolutionCustomizer.dll dist/BepInEx/plugins/
         cd dist
         zip -r ../NXMC_CameraResolutionCustomizer.zip .
