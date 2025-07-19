@@ -6,23 +6,24 @@ jobs:
   build_bepinex:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/checkout@v4
-        with:
-          repository: BepInEx/BepInEx
-          ref: 53625800b86f6c68751445248260edf0b27a71c2 # v6.0.0-pre.2
-          path: BepInEx
-      - uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: 6.0.x
-      - run: find ../bepinex-patches -type f -name "*.patch" -exec bash -c "patch -p1 < {}" \;
-        working-directory: BepInEx
-      - run: ./build.sh --target Publish
-        working-directory: BepInEx
-      - uses: actions/upload-artifact@v4
-        with:
-            path: "./BepInEx/bin/dist/*.zip"
-            name: "BepInEx_CI"
+    - uses: actions/checkout@v4
+    - uses: actions/checkout@v4
+      with:
+        repository: BepInEx/BepInEx
+        ref: 53625800b86f6c68751445248260edf0b27a71c2 # v6.0.0-pre.2
+        path: BepInEx
+    - uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 6.0.x
+    - run: find ../bepinex-patches -type f -name "*.patch" -exec bash -c "patch -p1 < {}" \;
+      working-directory: BepInEx
+    - run: ./build.sh --target Publish
+      working-directory: BepInEx
+    - uses: actions/upload-artifact@v4
+      with:
+          path: "./BepInEx/bin/dist/*.zip"
+          name: "BepInEx_CI"
+          if-no-files-found: error
   build_plugin:
     runs-on: windows-2025
     steps:
@@ -30,28 +31,29 @@ jobs:
     - run: dotnet build --configuration Release
     - uses: actions/upload-artifact@v4
       with:
-        path: "./bin/Release/NXMC_CameraResolutionCustomizer.dll"
+        path: "./bin/Release/net48/NXMC_CameraResolutionCustomizer.dll"
         name: "NXMC_CameraResolutionCustomizer_CI"
+        if-no-files-found: error
   build_zip:
     runs-on: ubuntu-24.04
     needs: [build_bepinex, build_plugin]
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
-        with:
-          name: "BepInEx_CI"
-      - uses: actions/download-artifact@v4
-        with:
-          name: "NXMC_CameraResolutionCustomizer_CI"
-      - run: |
-          mkdir -p dist
-          mv BepInEx-NET.Framework-net48-win-x64-*.zip BepInEx.zip
-          unzip -o BepInEx.zip -d dist
-          cp NXMC_CameraResolutionCustomizer.dll dist/BepInEx/plugins/
-          cd dist
-          zip -r NXMC_CameraResolutionCustomizer.zip BepInEx
-      - uses: actions/upload-artifact@v4
-        with:
-          path: "./dist/NXMC_CameraResolutionCustomizer.zip"
-          name: "NXMC_CameraResolutionCustomizer_zip"
-          
+    - uses: actions/checkout@v4
+    - uses: actions/download-artifact@v4
+      with:
+        name: "BepInEx_CI"
+    - uses: actions/download-artifact@v4
+      with:
+        name: "NXMC_CameraResolutionCustomizer_CI"
+    - run: |
+        mkdir -p dist
+        mv BepInEx-NET.Framework-net48-win-x64-*.zip BepInEx.zip
+        unzip -o BepInEx.zip -d dist
+        cp NXMC_CameraResolutionCustomizer.dll dist/BepInEx/plugins/
+        cd dist
+        zip -r NXMC_CameraResolutionCustomizer.zip BepInEx
+    - uses: actions/upload-artifact@v4
+      with:
+        path: "./dist/NXMC_CameraResolutionCustomizer.zip"
+        name: "NXMC_CameraResolutionCustomizer_zip"
+        if-no-files-found: error
