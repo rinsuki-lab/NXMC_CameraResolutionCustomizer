@@ -54,7 +54,7 @@ jobs:
         chmod -R 755 dist
         cp -r overlay/* dist/
         cp NXMC_CameraResolutionCustomizer.dll dist/BepInEx/plugins/
-        mt.exe -manifest BepInEx.NET.Framework.Launcher.exe.manifest -outputresource:dist/BepInEx.NET.Framework.Launcher.exe;1
+        mt.exe -manifest BepInEx.NET.Framework.Launcher.exe.manifest -outputresource:"dist/BepInEx.NET.Framework.Launcher.exe;1"
         cd dist
         zip -r ../NXMC_CameraResolutionCustomizer.zip .
     - uses: actions/upload-artifact@v4
