@@ -3,7 +3,6 @@ using BepInEx.Logging;
 using BepInEx.NET.Common;
 using DirectShowLib;
 using HarmonyLib;
-using Microsoft.VisualBasic;
 using System;
 using System.Linq;
 using System.Reflection;
@@ -50,6 +49,13 @@ class DSHDMICapturePatches
     [HarmonyPostfix]
     public static void GetCaptureDevice_Postfix(int deviceIndex, IBaseFilter __result)
     {
+        if (__result == null)
+        {
+            return;
+        }
+
+        using var form = new Form1();
+
         var sb = new StringBuilder();
         // 本当はもうちょっと気にしないとダメな気がするが一旦決め打ちで
         var pin = DsFindPin.ByDirection(__result, PinDirection.Output, 0);
@@ -58,10 +64,13 @@ class DSHDMICapturePatches
         config.GetNumberOfCapabilities(out var count, out var size);
 
         var data = Marshal.AllocHGlobal(size);
+
+        form.BeginListUpdate();
         
         for (int i=0; i<count; i++)
         {
             config.GetStreamCaps(i, out var mediaType, data); // TODO: 解放しなくていいんだっけ？
+            string line = "";
             if (mediaType.formatType == FormatType.VideoInfo)
             {
                 var info = Marshal.PtrToStructure<VideoInfoHeader>(mediaType.formatPtr);
@@ -76,17 +85,20 @@ class DSHDMICapturePatches
                         break;
                     }
                 }
-                sb.AppendLine($"{i}: {info.BmiHeader.Width} x {info.BmiHeader.Height}, subtype={subtypeName}");
+                line = $"{i}: {info.BmiHeader.Width} x {info.BmiHeader.Height}, subtype={subtypeName}";
             } else
             {
-                sb.AppendLine($"{i}: 未知のFormatType({mediaType.formatType})");
+                line = $"{i}: 未知のFormatType({mediaType.formatType})";
             }
+            form.AddItem(line);
+            sb.AppendLine(line);
         }
 
         Plugin.Log.LogInfo($"ダイアログ内容: {sb.ToString()}");
 
-        var result = Interaction.InputBox(sb.ToString(), "どのフォーマットを選択しますか？");
-        var intresult = int.Parse(result);
+        form.EndListUpdate();
+        form.ShowDialog();
+        var intresult = form.CurrentSelectedItemIndex();
         Plugin.Log.LogInfo($"intresult={intresult}");
         config.GetStreamCaps(intresult, out var finalMediaType, data);
         config.SetFormat(finalMediaType);
