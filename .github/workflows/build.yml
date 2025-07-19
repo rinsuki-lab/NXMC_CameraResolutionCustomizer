@@ -1,0 +1,25 @@
+on:
+  push:
+  pull_request:
+
+jobs:
+  build_bepinex:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: BepInEx/BepInEx
+          ref: 53625800b86f6c68751445248260edf0b27a71c2 # v6.0.0-pre.2
+          path: BepInEx
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 6.0.x
+      - run: patch -p1 < ../bepinex-patches/*.patch
+        working-directory: BepInEx
+      - run: ./build.sh --target Publish
+        working-directory: BepInEx
+      - uses: actions/upload-artifact@v4
+        with:
+            path: "./BepInEx/bin/dist/*.zip"
+            name: "BepInEx_CI"

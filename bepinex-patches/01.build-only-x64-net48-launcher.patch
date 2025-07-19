@@ -1,0 +1,41 @@
+diff --git a/Runtimes/NET/BepInEx.NET.Framework.Launcher/BepInEx.NET.Framework.Launcher.csproj b/Runtimes/NET/BepInEx.NET.Framework.Launcher/BepInEx.NET.Framework.Launcher.csproj
+index 90a37b8..2e020ae 100644
+--- a/Runtimes/NET/BepInEx.NET.Framework.Launcher/BepInEx.NET.Framework.Launcher.csproj
++++ b/Runtimes/NET/BepInEx.NET.Framework.Launcher/BepInEx.NET.Framework.Launcher.csproj
+@@ -2,10 +2,9 @@
+     <PropertyGroup>
+         <Description>BepInEx support library for .NET Framework games</Description>
+         <OutputType>Exe</OutputType>
+-        <TargetFrameworks>net40;net452</TargetFrameworks>
++        <TargetFrameworks>net48</TargetFrameworks>
+         <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+         <AppendTargetFrameworkToOutputPath>true</AppendTargetFrameworkToOutputPath>
+-        <PlatformTarget>x86</PlatformTarget>
+         <OutputPath>$(BuildDir)/NET.Framework</OutputPath>
+     </PropertyGroup>
+     <ItemGroup>
+diff --git a/build/Program.cs b/build/Program.cs
+index 0ba5f0a..f9027b0 100644
+--- a/build/Program.cs
++++ b/build/Program.cs
+@@ -41,19 +41,7 @@ public class BuildContext : FrostingContext
+ 
+     internal readonly DistributionTarget[] Distributions =
+     {
+-        new("Unity.Mono", "win-x86"),
+-        new("Unity.Mono", "win-x64"),
+-        new("Unity.Mono", "linux-x86"),
+-        new("Unity.Mono", "linux-x64"),
+-        new("Unity.Mono", "macos-x64"),
+-        new("Unity.IL2CPP", "win-x86"),
+-        new("Unity.IL2CPP", "win-x64"),
+-        new("Unity.IL2CPP", "linux-x64"),
+-        new("Unity.IL2CPP", "macos-x64"),
+-        new("NET.Framework", "win-x86", "net40"),
+-        new("NET.Framework", "win-x86", "net452"),
+-        new("NET.CoreCLR", "win-x64", "netcoreapp3.1"),
+-        new("NET.CoreCLR", "win-x64", "net6.0")
++        new("NET.Framework", "win-x64", "net48"),
+     };
+ 
+ 

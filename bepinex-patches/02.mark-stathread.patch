@@ -1,0 +1,12 @@
+diff --git a/Runtimes/NET/BepInEx.NET.Framework.Launcher/Program.cs b/Runtimes/NET/BepInEx.NET.Framework.Launcher/Program.cs
+index 1297186..59ce799 100644
+--- a/Runtimes/NET/BepInEx.NET.Framework.Launcher/Program.cs
++++ b/Runtimes/NET/BepInEx.NET.Framework.Launcher/Program.cs
+@@ -22,6 +22,7 @@ internal class Program
+         Environment.Exit(-1);
+     }
+ 
++    [STAThread]
+     private static void Main(string[] args)
+     {
+         var silentExceptionLog = $"preloader_{DateTime.Now:yyyyMMdd_HHmmss_fff}.log";
