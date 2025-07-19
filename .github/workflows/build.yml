@@ -45,6 +45,7 @@ jobs:
     - uses: actions/download-artifact@v4
       with:
         name: "NXMC_CameraResolutionCustomizer_CI"
+    - uses: microsoft/setup-msbuild@v2
     - shell: bash
       run: |
         mkdir -p dist
