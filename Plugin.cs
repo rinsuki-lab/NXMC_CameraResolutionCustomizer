@@ -9,6 +9,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Windows.Forms;
 
 namespace NXMC_CameraResolutionCustomizer;
 
@@ -92,5 +93,41 @@ class DSHDMICapturePatches
 
         // 後始末
         Marshal.FreeHGlobal(data);
+    }
+}
+
+[HarmonyPatch]
+class ConsoleIconPatches
+{
+    public static MethodBase TargetMethod()
+    {
+        return AccessTools.GetTypesFromAssembly(Plugin.FindExeAssembly())
+            .Where(t => t.Name == "NXMC_VxV")
+            .SelectMany(t => t.GetRuntimeMethods())
+            .Where(m => m.Name == "InitializeComponent")
+            .First();
+    }
+
+    [DllImport("kernel32.dll")]
+    private static extern IntPtr GetConsoleWindow();
+
+    [DllImport("user32.dll")]
+    private static extern int SendMessage(IntPtr intPtr, int msg, IntPtr wParam, IntPtr lParam);
+
+    [HarmonyPostfix]
+    public static void InitializeComponent_PostFix(Form __instance)
+    {
+        IntPtr cw = GetConsoleWindow();
+        if (cw == IntPtr.Zero)
+        {
+            // BepInEx のコンソール設定切ってる?
+            return;
+        }
+
+        const int WM_SETICON = 0x0080;
+
+
+        SendMessage(cw, WM_SETICON, (IntPtr)0 /* ICON_BIG */, __instance.Icon.Handle);
+        SendMessage(cw, WM_SETICON, (IntPtr)1 /* ICON_SMALL */, __instance.Icon.Handle);
     }
 }
