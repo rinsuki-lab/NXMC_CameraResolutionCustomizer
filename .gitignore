@@ -1,0 +1,5 @@
+/.vs
+bin
+obj
+/external/*
+!/external/DirectShowLib-2005.dll
