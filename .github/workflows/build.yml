@@ -2,8 +2,22 @@ name: Build
 on:
   push:
   pull_request:
+  workflow_dispatch:
 
 jobs:
+  determine_version:
+    runs-on: ubuntu-24.04
+    outputs:
+      full_version: ${{ steps.version.outputs.full_version }}
+    steps:
+    - uses: actions/checkout@v4
+    - name: Determine version
+      id: version
+      run: |
+        BASE_VERSION=$(grep -Po '(?<=<Version>)[^<]+' NXMC_CameraResolutionCustomizer.csproj)
+        TIMESTAMP=$(date +%Y%m%d%H%M%S)
+        FULL_VERSION="${BASE_VERSION}.${TIMESTAMP}"
+        echo "full_version=${FULL_VERSION}" >> $GITHUB_OUTPUT
   build_bepinex:
     runs-on: ubuntu-24.04
     steps:
@@ -27,8 +41,15 @@ jobs:
           if-no-files-found: error
   build_plugin:
     runs-on: windows-2025
+    needs: determine_version
     steps:
     - uses: actions/checkout@v4
+    - name: Update csproj version
+      shell: pwsh
+      run: |
+        $content = Get-Content NXMC_CameraResolutionCustomizer.csproj -Raw
+        $content = $content -replace '<Version>[^<]+</Version>', '<Version>${{ needs.determine_version.outputs.full_version }}</Version>'
+        Set-Content -Path NXMC_CameraResolutionCustomizer.csproj -Value $content -NoNewline
     - run: dotnet build --configuration Release
     - uses: actions/upload-artifact@v4
       with:
@@ -37,7 +58,7 @@ jobs:
         if-no-files-found: error
   build_zip:
     runs-on: windows-2025
-    needs: [build_bepinex, build_plugin]
+    needs: [determine_version, build_bepinex, build_plugin]
     steps:
     - uses: actions/checkout@v4
     - uses: actions/download-artifact@v4
@@ -56,11 +77,32 @@ jobs:
         cp -r overlay/* dist/
         cp NXMC_CameraResolutionCustomizer.dll dist/BepInEx/plugins/
         mt.exe -manifest BepInEx.NET.Framework.Launcher.exe.manifest -outputresource:"dist/BepInEx.NET.Framework.Launcher.exe;1"
-    - run: Compress-Archive -Path * -DestinationPath ../NXMC_CameraResolutionCustomizer.zip -CompressionLevel Optimal
+    - run: Compress-Archive -Path * -DestinationPath ../NXMC_CameraResolutionCustomizer_${{ needs.determine_version.outputs.full_version }}.zip -CompressionLevel Optimal
       shell: pwsh
       working-directory: dist
     - uses: actions/upload-artifact@v4
       with:
-        path: "./NXMC_CameraResolutionCustomizer.zip"
+        path: "./NXMC_CameraResolutionCustomizer_${{ needs.determine_version.outputs.full_version }}.zip"
         name: "NXMC_CameraResolutionCustomizer_zip"
         if-no-files-found: error
+  create_draft_release:
+    runs-on: ubuntu-24.04
+    needs: [determine_version, build_zip]
+    if: github.event_name == 'workflow_dispatch'
+    permissions:
+      contents: write
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/download-artifact@v4
+      with:
+        name: "NXMC_CameraResolutionCustomizer_zip"
+    - name: Create Draft Release
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        VERSION="v${{ needs.determine_version.outputs.full_version }}"
+        gh release create "$VERSION" \
+          --draft \
+          --title "$VERSION" \
+          --notes "Draft release created by workflow_dispatch" \
+          NXMC_CameraResolutionCustomizer_${{ needs.determine_version.outputs.full_version }}.zip
