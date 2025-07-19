@@ -52,9 +52,9 @@ jobs:
         chmod -R 755 dist/BepInEx
         cp NXMC_CameraResolutionCustomizer.dll dist/BepInEx/plugins/
         cd dist
-        zip -r NXMC_CameraResolutionCustomizer.zip BepInEx
+        zip -r ../NXMC_CameraResolutionCustomizer.zip .
     - uses: actions/upload-artifact@v4
       with:
-        path: "./dist/NXMC_CameraResolutionCustomizer.zip"
+        path: "./NXMC_CameraResolutionCustomizer.zip"
         name: "NXMC_CameraResolutionCustomizer_zip"
         if-no-files-found: error
