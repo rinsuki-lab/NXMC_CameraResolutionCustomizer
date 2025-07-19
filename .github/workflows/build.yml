@@ -16,7 +16,7 @@ jobs:
       run: |
         BASE_VERSION=$(grep -Po '(?<=<Version>)[^<]+' NXMC_CameraResolutionCustomizer.csproj)
         TIMESTAMP=$(date +%Y%m%d%H%M%S)
-        FULL_VERSION="${BASE_VERSION}.${TIMESTAMP}"
+        FULL_VERSION="${BASE_VERSION}-build.${TIMESTAMP}.${{ github.run_id }}"
         echo "full_version=${FULL_VERSION}" >> $GITHUB_OUTPUT
   build_bepinex:
     runs-on: ubuntu-24.04
