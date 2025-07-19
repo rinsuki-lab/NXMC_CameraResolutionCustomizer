@@ -55,7 +55,7 @@ jobs:
         cp -r overlay/* dist/
         cp NXMC_CameraResolutionCustomizer.dll dist/BepInEx/plugins/
         mt.exe -manifest BepInEx.NET.Framework.Launcher.exe.manifest -outputresource:"dist/BepInEx.NET.Framework.Launcher.exe;1"
-    - run: Compress-Archive -Path * -DestinationPath ../NXMC_CameraResolutionCustomizer.zip -Force
+    - run: Compress-Archive -Path * -DestinationPath ../NXMC_CameraResolutionCustomizer.zip -CompressionLevel Optimal
       shell: pwsh
       working-directory: dist
     - uses: actions/upload-artifact@v4
